@@ -1,7 +1,7 @@
 groups:
   - name: k24klik_alerts
     rules:
-      # Host CPU Usage 
+      # High CPU Usage 
       - alert: HighCPUUsage
         expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
         for: 2m
@@ -11,6 +11,7 @@ groups:
           summary: "High CPU Usage on {{ $labels.instance }}"
           description: "CPU usage is above 80% for more than 2 minutes."
 
+      # Critical CPU Usage
       - alert: CriticalCPUUsage
         expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 95
         for: 1m
@@ -20,7 +21,7 @@ groups:
           summary: "Critical CPU Usage on {{ $labels.instance }}"
           description: "CPU usage is above 95% for more than 1 minute!"
 
-      # Host Memory Usage 
+      # High Memory Usage
       - alert: HighMemoryUsage
         expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
         for: 2m
@@ -40,6 +41,26 @@ groups:
           summary: "Low Disk Space on {{ $labels.instance }}"
           description: "Available disk space is below 20%."
 
+      # Container Down
+      - alert: ContainerDown
+        expr: absent(container_last_seen{name!=""})
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container Missing"
+          description: "A container is not detected for more than 60 seconds."
+
+      # Container High Memory
+      - alert: ContainerHighMemory
+        expr: container_memory_usage_bytes{name!=""} / container_spec_memory_limit_bytes{name!=""} * 100 > 85
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Memory Usage in Container {{ $labels.container }}"
+          description: "Memory usage in container {{ $labels.container }} is above 85% for 3 minutes."
+
       # Target Down 
       - alert: TargetDown
         expr: up == 0
@@ -50,12 +71,12 @@ groups:
           summary: "Target Down: {{ $labels.instance }}"
           description: "A scrape target has been down for more than 1 minute."
 
-      # Container Monitoring (via cAdvisor) 
-      - alert: ContainerDown
-        expr: absent(container_last_seen{name!=""})
-        for: 1m
+      # High Container CPU
+      - alert: HighContainerCPU
+        expr: rate(container_cpu_usage_seconds_total{name!=""}[5m]) * 100 > 70
+        for: 5m
         labels:
-          severity: critical
+          severity: warning
         annotations:
-          summary: "Container Missing"
-          description: "A container is not detected for more than 60 seconds."
+          summary: "High CPU Usage in Container {{ $labels.container }}"
+          description: "CPU usage in container {{ $labels.container }} is above 70% for 5 minutes."

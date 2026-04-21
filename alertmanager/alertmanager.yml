@@ -22,7 +22,7 @@ route:
       receiver: 'slack-webhook'
 
 inhibit_rules:
-  # Jika critical sudah aktif untuk instance yang sama, sembunyikan alert warning [cite: 85]
+  # Jika critical sudah aktif untuk instance yang sama, sembunyikan alert warning
   - source_match:
       severity: 'critical'
     target_match:
@@ -32,5 +32,5 @@ inhibit_rules:
 receivers:
   - name: 'slack-webhook'
     webhook_configs:
-      # URL dummy yang merepresentasikan channel #alerts-production [cite: 55, 84]
+      # URL dummy yang merepresentasikan channel #alerts-production
       - url: 'http://localhost:5001'

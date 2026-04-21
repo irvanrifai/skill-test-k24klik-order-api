@@ -1,18 +1,16 @@
 global:
-  scrape_interval: 15s # Sesuai requirement soal 
-  evaluation_interval: 15s # Sesuai requirement soal 
+  scrape_interval: 15s
+  evaluation_interval: 15s
   external_labels:
     env: 'production'
     app: 'k24klik'
 
-# Mengarahkan alert ke Alertmanager [cite: 75]
 alerting:
   alertmanagers:
     - static_configs:
         - targets:
             - alertmanager:9093
 
-# Load rules untuk alert [cite: 75, 76]
 rule_files:
   - "rules.yml"
 
@@ -22,6 +20,6 @@ scrape_configs:
       - targets: 
           - 'prometheus:9090'
           - 'node-exporter:9100'
-          - 'cadvisor:8080' # Port internal container cadvisor
+          - 'cadvisor:8080'
           - 'alertmanager:9093'
-          - 'redis-exporter:9121' # Bonus redis-exporter [cite: 68]
+          - 'redis-exporter:9121'

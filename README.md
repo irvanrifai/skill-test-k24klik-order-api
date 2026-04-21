@@ -16,3 +16,14 @@ Stack monitoring
 - Inhibition Rules: Ini adalah bagian paling cerdas dari DevOps. Jika sebuah server sudah dalam kondisi Critical (misal CPU 95%), maka notifikasi Warning (CPU 80%) di server yang sama tidak perlu dikirim lagi karena kita sudah tahu ada masalah besar di sana.
 - Slack Integration: Sesuai instruksi, kita menggunakan webhook receiver ke URL dummy http://localhost:5001 sebagai representasi integrasi Slack.
 
+## Important Checklist
+- [x] docker compose up -d berjalan tanpa error
+- [x] docker compose ps — semua service healthy
+- [] Prometheus (localhost:9090/targets) — semua target UP
+- [] Grafana (localhost:3000) — dashboard K24Klik muncul otomatis (admin/k24monitoring2026)
+- [] Alertmanager (localhost:9093) — dapat diakses
+- [] Alert rules terdefinisi di Prometheus (localhost:9090/rules)
+- [] Semua 8 alert ada di rules.yml dengan label dan annotation lengkap
+- [] README.md lengkap: setup guide + keputusan teknis
+- [x] Tidak ada file sensitif (password, .env) yang ter-commit
+- [x] Repository bersih: .gitignore sudah dikonfigurasi
