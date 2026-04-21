@@ -19,11 +19,11 @@ Stack monitoring
 ## Important Checklist
 - [x] docker compose up -d berjalan tanpa error
 - [x] docker compose ps — semua service healthy
-- [ ] Prometheus (localhost:9090/targets) — semua target UP
-- [ ] Grafana (localhost:3000) — dashboard K24Klik muncul otomatis (admin/k24monitoring2026)
-- [ ] Alertmanager (localhost:9093) — dapat diakses
-- [ ] Alert rules terdefinisi di Prometheus (localhost:9090/rules)
-- [ ] Semua 8 alert ada di rules.yml dengan label dan annotation lengkap
+- [x] Prometheus (localhost:9090/targets) — semua target UP
+- [x] Grafana (localhost:3000) — dashboard K24Klik muncul otomatis (admin/k24monitoring2026)
+- [x] Alertmanager (localhost:9093) — dapat diakses
+- [x] Alert rules terdefinisi di Prometheus (localhost:9090/rules)
+- [x] Semua 8 alert ada di rules.yml dengan label dan annotation lengkap
 - [ ] README.md lengkap: setup guide + keputusan teknis
 - [x] Tidak ada file sensitif (password, .env) yang ter-commit
 - [x] Repository bersih: .gitignore sudah dikonfigurasi
