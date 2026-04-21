@@ -33,7 +33,7 @@ groups:
 
       # Disk Space Low 
       - alert: DiskSpaceLow
-        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100 < 20
+        expr: node_filesystem_avail_bytes{mountpoint="/var"} / node_filesystem_size_bytes{mountpoint="/var"} * 100 < 20
         for: 5m
         labels:
           severity: warning
@@ -43,7 +43,7 @@ groups:
 
       # Container Down
       - alert: ContainerDown
-        expr: absent(container_last_seen{name!=""})
+        expr: absent(container_last_seen)
         for: 1m
         labels:
           severity: critical
@@ -53,7 +53,7 @@ groups:
 
       # Container High Memory
       - alert: ContainerHighMemory
-        expr: container_memory_usage_bytes{name!=""} / container_spec_memory_limit_bytes{name!=""} * 100 > 85
+        expr: container_memory_usage_bytes / container_spec_memory_limit_bytes * 100 > 85
         for: 3m
         labels:
           severity: warning
@@ -73,7 +73,7 @@ groups:
 
       # High Container CPU
       - alert: HighContainerCPU
-        expr: rate(container_cpu_usage_seconds_total{name!=""}[5m]) * 100 > 70
+        expr: rate(container_cpu_usage_seconds_total[5m]) * 100 > 70
         for: 5m
         labels:
           severity: warning

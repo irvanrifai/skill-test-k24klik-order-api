@@ -97,7 +97,7 @@ services:
     restart: unless-stopped
     privileged: true
     ports:
-      - "8081:8080" # Port 8080 host bentrok dengan API Gateway, kita arahkan ke 8081 
+      - "8080:8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
