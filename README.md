@@ -1,17 +1,54 @@
 # Monitoring Sistem K24Klik Order API
 
-Merupakan stack monitoring sistem `Order API` untuk memantau apakah sistem berjalan dengan sehat, stack ini menggunakan Tools Docker, Prometheus,Grafana & PromQL
+Merupakan stack monitoring sistem `Order API` untuk memantau apakah sistem berjalan dengan sehat, stack ini menggunakan Tools Docker, Prometheus, Grafana & PromQL
 
 ## Daftar Isi
 
-- [Struktur Project](#-struktur-project)
-- [Persyaratan](#-persyaratan)
+- [Arsitektur](#arsitektur)
+- [Struktur Project](#struktur-project)
+- [Persyaratan](#persyaratan)
 - [Instalasi dan Menjalankan](#instalasi-dan-menjalankan)
-- [Kredensial Default](#-kredensial-default)
-- [Cara Verifikasi Dashboard](#-cara-verifikasi-dashboard)
-- [Keputusan Teknis](#-keputusan-teknis)
-- [Checklist Penting](#-checklist-penting)
-- [Referensi](#-referensi)
+- [Kredensial Default](#kredensial-default)
+- [Cara Verifikasi Dashboard](#cara-verifikasi-dashboard)
+- [Keputusan Teknis](#keputusan-teknis)
+- [Checklist Penting](#checklist-penting)
+- [Referensi](#referensi)
+
+## Arsitektur
+
+       +-------------------------------------------------------------+
+       |                         TARGET HOST                         |
+       |  (Server / Docker Engine)                                   |
+       +-------------------------------------------------------------+
+               |                           |
+       [ Node Exporter ]           [ cAdvisor ]
+       (Hardware Metrics)      (Container Metrics)
+               |                           |
+               +-------------+-------------+
+                             |
+                             v [Pull Metrics every 15s]
+                    +-------------------+
+                    |    PROMETHEUS     |<--- [ Alert Rules ]
+                    |  (Time Series DB) |
+                    +-------------------+
+                             |
+               +-------------+-------------+
+               |                           |
+               v                           v
+        +--------------+           +----------------+
+        |   GRAFANA    |           |  ALERTMANAGER  |
+        | (Dashboards) |           | (Notifications)|
+        +--------------+           +----------------+
+               |                           |
+               v                           v
+        [ Admin Browser ]           [ Slack/Webhook ]
+
+### Penjelasan
+- Target Host: Lingkungan tempat aplikasi K24Klik berjalan.
+- Exporters (Node & cAdvisor): Bertugas mengambil data mentah dari sistem dan mengubahnya menjadi format metrik.
+- Prometheus: "Otak" yang menarik (pull) data secara berkala dan mengevaluasi aturan alert.
+- Grafana: Menarik data dari Prometheus untuk visualisasi dashboard 9 panel.
+- Alertmanager: Menerima sinyal bahaya dari Prometheus dan meneruskannya ke Slack.
 
 ## Struktur Project
 
@@ -103,6 +140,6 @@ docker compose up -d
 - [x] Repository bersih: .gitignore sudah dikonfigurasi
 
 ## Referensi
-- Docker Documentation chech [documentation](https://docs.docker.com/)
+- Docker Documentation check [documentation](https://docs.docker.com/)
 - Prometheus Query Language (PromQL) check [reference](https://prometheus.io/docs/prometheus/latest/querying/functions)
 - Grafana Dashboard & Panel Visualization check [documentation](https://grafana.com/docs/grafana/latest/visualizations/panels-visualizations/)
