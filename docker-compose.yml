@@ -12,7 +12,7 @@ services:
     networks:
       - monitoring
     labels:
-      - "k24klik_env=production"
+      - "k24klik_env=${K24KLIK_ENV}"
     healthcheck:
       test:
         [
@@ -41,7 +41,7 @@ services:
     networks:
       - monitoring
     labels:
-      - "k24klik_env=production"
+      - "k24klik_env=${K24KLIK_ENV}"
     depends_on:
       prometheus:
         condition: service_healthy
@@ -69,7 +69,7 @@ services:
     networks:
       - monitoring
     labels:
-      - "k24klik_env=production"
+      - "k24klik_env=${K24KLIK_ENV}"
 
   node-exporter:
     image: prom/node-exporter:v1.7.0
@@ -89,7 +89,7 @@ services:
     networks:
       - monitoring
     labels:
-      - "k24klik_env=production"
+      - "k24klik_env=${K24KLIK_ENV}"
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
@@ -108,7 +108,7 @@ services:
     networks:
       - monitoring
     labels:
-      - "k24klik_env=production"
+      - "k24klik_env=${K24KLIK_ENV}"
 
   redis-exporter:
     image: oliver006/redis_exporter
@@ -117,7 +117,7 @@ services:
     networks:
       - monitoring
     labels:
-      - "k24klik_env=production"
+      - "k24klik_env=${K24KLIK_ENV}"
 
 networks:
   monitoring:

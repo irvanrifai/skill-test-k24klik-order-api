@@ -1,7 +1,7 @@
 apiVersion: 1
 
 providers:
-  - name: 'K24Klik Order API — Infrastructure Overview'
+  - name: 'K24Klik Dashboards'
     orgId: 1
     folder: 'K24Klik'
     type: file
