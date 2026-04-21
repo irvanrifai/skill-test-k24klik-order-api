@@ -112,7 +112,6 @@ services:
     labels:
       - "k24klik_env=production"
 
-  # Bonus (+5 poin): Redis Exporter [cite: 68]
   redis-exporter:
     image: oliver006/redis_exporter
     container_name: k24klik-redis-exporter
