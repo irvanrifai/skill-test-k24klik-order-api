@@ -1,0 +1,36 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'instance', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 12h
+  receiver: 'slack-webhook'
+  
+  routes:
+    # Routing khusus untuk severity critical: kirim langsung tanpa nunggu grup 
+    - match:
+        severity: 'critical'
+      group_wait: 0s
+      receiver: 'slack-webhook'
+    
+    # Routing untuk warning: digabung (group_wait 5 menit) 
+    - match:
+        severity: 'warning'
+      group_wait: 5m
+      receiver: 'slack-webhook'
+
+inhibit_rules:
+  # Jika critical sudah aktif untuk instance yang sama, sembunyikan alert warning [cite: 85]
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['instance', 'app']
+
+receivers:
+  - name: 'slack-webhook'
+    webhook_configs:
+      # URL dummy yang merepresentasikan channel #alerts-production [cite: 55, 84]
+      - url: 'http://localhost:5001'
