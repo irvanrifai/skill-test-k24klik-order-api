@@ -70,6 +70,18 @@ services:
       - monitoring
     labels:
       - "k24klik_env=${K24KLIK_ENV}"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9093/-/healthy",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   node-exporter:
     image: prom/node-exporter:v1.7.0
@@ -114,6 +126,8 @@ services:
     image: oliver006/redis_exporter
     container_name: k24klik-redis-exporter
     restart: unless-stopped
+    environment:
+      - REDIS_ADDR=localhost:6379
     networks:
       - monitoring
     labels:

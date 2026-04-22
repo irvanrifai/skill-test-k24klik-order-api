@@ -11,6 +11,7 @@ Merupakan stack monitoring sistem `Order API` untuk memantau apakah sistem berja
 - [Kredensial Default](#kredensial-default)
 - [Cara Verifikasi Dashboard](#cara-verifikasi-dashboard)
 - [Keputusan Teknis](#keputusan-teknis)
+- [Penjelasan PromQl](#penjelasan-promql)
 - [Checklist Penting](#checklist-penting)
 - [Referensi](#referensi)
 
@@ -98,7 +99,7 @@ docker compose up -d
 6. Akses Grafana di `http://localhost:3000`.
 7. Akses Alert Manager di `http://localhost:9093`.
 8. Akses Node Exporter di `http://localhost:9100`.
-9. Akses Cadvisor di `http://localhost:8081`.
+9. Akses Cadvisor di `http://localhost:8080`.
 
 ## Kredensial Default
 - **Grafana**: admin / k24monitoring2026
@@ -126,6 +127,51 @@ docker compose up -d
 - Slack Integration: Sesuai instruksi, kita menggunakan webhook receiver ke URL dummy http://localhost:5001 sebagai representasi integrasi Slack.
 ### Grafana
 - Provisioning vs Manual Import: Saya memilih menggunakan Dashboard Provisioning (file JSON) daripada import manual. Hal ini menjamin bahwa siapapun yang menjalankan docker compose up akan mendapatkan visualisasi dashboard yang identik.
+
+## Penjelasan PromQL
+
+### CPU Usage Query
+`100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)`
+| Bagian | Penjelasan |
+|---|---|
+| `node_cpu_seconds_total` | Metrik dari Node Exporter — counter total detik yang dihabiskan CPU di setiap mode (idle, user, system, dll) |
+| `{mode="idle"}` | Filter hanya mode "idle" — waktu CPU tidak mengerjakan apapun |
+| `rate(...[5m])` | Menghitung laju perubahan counter per detik, dirata-rata selama 5 menit terakhir. `rate()` dipakai karena `node_cpu_seconds_total` adalah counter yang terus naik |
+| `avg by(instance)` | Merata-rata semua CPU core per instance/host, sehingga hasil akhir adalah satu angka per server, bukan per core |
+| `* 100` | Mengkonversi dari desimal (0–1) ke persentase (0–100) |
+| `100 - (...)` | Membalik nilai idle menjadi usage — jika idle 30%, maka usage = 70% |
+**Mengapa menggunakan `rate()` bukan `irate()`?**
+`rate()` lebih stabil untuk alerting karena merata-rata dalam window 5 menit, sehingga tidak terpicu oleh spike sesaat. `irate()` lebih responsif tapi terlalu sensitif untuk threshold alert produksi.
+**Mengapa window `[5m]`?**
+Cukup panjang untuk meredam noise, tapi cukup pendek untuk tetap mendeteksi masalah real-time. Cocok dengan scrape_interval 15s karena ada ~20 data point dalam window tersebut.
+
+### Memory Usage Query
+`(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100`
+| Bagian | Penjelasan |
+|---|---|
+| `node_memory_MemTotal_bytes` | Total RAM fisik di host |
+| `node_memory_MemAvailable_bytes` | RAM yang tersedia untuk proses baru (sudah memperhitungkan buffer/cache yang bisa dibebaskan) |
+| `1 - (Available / Total)` | Proporsi memori yang sedang terpakai |
+| `* 100` | Konversi ke persentase |
+**Mengapa `MemAvailable` bukan `MemFree`?**
+`MemFree` hanya menghitung RAM yang benar-benar kosong, mengabaikan buffer dan cache yang sebenarnya bisa dibebaskan oleh kernel kapanpun dibutuhkan. `MemAvailable` lebih akurat mencerminkan kondisi memori yang sesungguhnya tersedia.
+
+### Disk Usage Query
+`(1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) * 100`
+| Bagian | Penjelasan |
+|---|---|
+| `node_filesystem_size_bytes` | Total kapasitas filesystem |
+| `node_filesystem_avail_bytes` | Ruang yang tersedia untuk pengguna non-root |
+| `{mountpoint="/"}` | Filter hanya root filesystem — mountpoint utama sistem |
+| `1 - (avail / size)` | Proporsi disk yang terpakai |
+
+### Container Memory Query (ContainerHighMemory alert)
+`(container_memory_usage_bytes / node_memory_MemTotal_bytes) * 100 > 85`
+| Bagian | Penjelasan |
+|---|---|
+| `container_memory_usage_bytes` | Memori yang dipakai oleh container (dari cAdvisor) |
+| `node_memory_MemTotal_bytes` | Total RAM host — dipakai sebagai pembanding karena container berbagi RAM host |
+| `> 85` | Threshold: alert jika satu container memakai lebih dari 85% total RAM host |
 
 ## Checklist Penting
 - [x] docker compose up -d berjalan tanpa error
