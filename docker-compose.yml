@@ -127,7 +127,7 @@ services:
     container_name: k24klik-redis-exporter
     restart: unless-stopped
     environment:
-      - REDIS_ADDR=localhost:6379
+      - REDIS_ADDR=${REDIS_ADDR:-redis://localhost:6379}
     networks:
       - monitoring
     labels:
